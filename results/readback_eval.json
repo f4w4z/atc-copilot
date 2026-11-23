@@ -33,39 +33,44 @@
   "pairs_with_compared_value": 1478,
   "findings": {
     "missing": 1477,
-    "match": 1367,
-    "mismatch": 191
+    "match": 1393,
+    "partial": 126,
+    "mismatch": 39
   },
   "findings_by_type": {
     "squawk": {
       "missing": 49,
-      "mismatch": 4,
-      "match": 13
+      "partial": 3,
+      "match": 13,
+      "mismatch": 1
     },
     "altitude": {
       "missing": 239,
-      "match": 692,
-      "mismatch": 111
+      "match": 705,
+      "partial": 85,
+      "mismatch": 13
     },
     "direct": {
-      "match": 144,
-      "mismatch": 29,
+      "match": 157,
+      "mismatch": 16,
       "missing": 122
     },
     "frequency": {
       "missing": 555,
-      "mismatch": 16,
-      "match": 91
+      "partial": 14,
+      "match": 91,
+      "mismatch": 2
     },
     "runway": {
       "missing": 274,
       "match": 262,
-      "mismatch": 16
+      "partial": 11,
+      "mismatch": 5
     },
     "heading": {
       "missing": 84,
       "match": 107,
-      "mismatch": 11
+      "partial": 11
     },
     "speed": {
       "missing": 96,
@@ -73,34 +78,35 @@
     },
     "qnh": {
       "match": 26,
-      "mismatch": 4,
-      "missing": 58
+      "partial": 2,
+      "missing": 58,
+      "mismatch": 2
     }
   },
-  "natural_flag_rate": 0.12922868741542626,
+  "natural_flag_rate": 0.02638700947225981,
   "injection": {
-    "n": 1156,
-    "detection_rate": 0.8356401384083045,
+    "n": 1175,
+    "detection_rate": 0.8451063829787234,
     "by_type": {
       "altitude": {
-        "n": 667,
-        "detection_rate": 0.9910044977511244
+        "n": 682,
+        "detection_rate": 0.9897360703812317
       },
       "frequency": {
         "n": 86,
-        "detection_rate": 0.47674418604651164
+        "detection_rate": 0.5116279069767442
       },
       "heading": {
-        "n": 96,
-        "detection_rate": 0.7083333333333334
+        "n": 99,
+        "detection_rate": 0.7878787878787878
       },
       "squawk": {
-        "n": 12,
+        "n": 13,
         "detection_rate": 1.0
       },
       "runway": {
         "n": 252,
-        "detection_rate": 0.5793650793650794
+        "detection_rate": 0.5833333333333334
       },
       "qnh": {
         "n": 18,
@@ -108,68 +114,62 @@
       },
       "speed": {
         "n": 25,
-        "detection_rate": 0.8
+        "detection_rate": 0.72
       }
     },
     "missed_examples": [
       {
         "controller": "easy six one three golf climb flight level three four zero",
         "readback": "climb flight level three four zero request flight level three seven zero as final easy six one three golf",
-        "mutated": "climb flight level three four zero request flight level three seven four as final easy six one three golf",
+        "mutated": "climb flight level three four zero request flight level three one zero as final easy six one three golf",
         "type": "altitude"
       },
       {
         "controller": "austrian three seven one quebec praha hello radar contact climb flight level three four zero",
         "readback": "climbing level three four zero and request level three eight zero please austrian three seven one quebec",
-        "mutated": "climbing level three four zero and request level three one zero please austrian three seven one quebec",
+        "mutated": "climbing level three four zero and request level three three zero please austrian three seven one quebec",
         "type": "altitude"
       },
       {
         "controller": "negative frequency one three five decimal one three five",
         "readback": "one three five decimal one three five air berlin three six zero five",
-        "mutated": "one six five decimal one three five air berlin three six zero five",
+        "mutated": "two three five decimal one three five air berlin three six zero five",
         "type": "frequency"
       },
       {
-        "controller": "turkish one nine five three contact rhein one three three decimal eight six zero bye bye",
-        "readback": "one three three decimal eight six zero turkish one nine five three good day",
-        "mutated": "eight three three decimal eight six zero turkish one nine five three good day",
+        "controller": "one one seven hello but call us on one three three decimal three nine zero",
+        "readback": "one three three decimal three nine zero ryan air nine one one",
+        "mutated": "one eight three decimal three nine zero ryan air nine one one",
         "type": "frequency"
       },
       {
-        "controller": "lot three one five contact vienna one three four decimal four four zero",
-        "readback": "one three four decimal four four zero lot three one five",
-        "mutated": "one three eight decimal four four zero lot three one five",
+        "controller": "finn air seven eight two romeo contact rhein one three three decimal two eight five bye",
+        "readback": "one three three decimal two eight five finn air seven eight two romeo good day",
+        "mutated": "one three eight decimal two eight five finn air seven eight two romeo good day",
         "type": "frequency"
       },
       {
-        "controller": "air berlin three one two charlie praha hello radar contact climb to flight level three four zero and confirm requested cruising level",
-        "readback": "climbing flight level three four zero request flight level three eight",
-        "mutated": "climbing flight level three four zero request flight level three one",
-        "type": "altitude"
-      },
-      {
-        "controller": "csa nine zero five contact praha one two seven decimal five seven five",
-        "readback": "one two seven decimal five seven five csa nine zero five",
-        "mutated": "one five seven decimal five seven five csa nine zero five",
+        "controller": "reach eight three five contact munich one three two decimal one five five bye",
+        "readback": "one three two decimal one five five reach",
+        "mutated": "three three two decimal one five five reach",
         "type": "frequency"
       },
       {
-        "controller": "csa four zero seven contact praha one two seven decimal five seven five",
-        "readback": "one two seven decimal five seven five csa four zero seven",
-        "mutated": "two two seven decimal five seven five csa four zero seven",
+        "controller": "eight nine seven contact praha one three five decimal one three five bye",
+        "readback": "one three five decimal one three five ni eight nine seven good day",
+        "mutated": "one three nine decimal one three five ni eight nine seven good day",
         "type": "frequency"
       },
       {
         "controller": "austrian five two hotel juliett praha radar contact descend flight level three three zero",
         "readback": "leaving level three five zero for level three three zero austrian five two hotel juliett",
-        "mutated": "leaving level eight five zero for level three three zero austrian five two hotel juliett",
+        "mutated": "leaving level three five seven for level three three zero austrian five two hotel juliett",
         "type": "altitude"
       },
       {
-        "controller": "csa nine two two contact praha one three three decimal four one zero bye",
-        "readback": "one three three decimal four one zero csa nine two two",
-        "mutated": "zero three three decimal four one zero csa nine two two",
+        "controller": "etihad zero one eight contact bratislava one three four decimal four seven five",
+        "readback": "bratislava one three four decimal four seven five etihad zero one eight good night",
+        "mutated": "bratislava one eight four decimal four seven five etihad zero one eight good night",
         "type": "frequency"
       },
       {
@@ -179,28 +179,34 @@
         "type": "frequency"
       },
       {
-        "controller": "ryan air three xray yankee contact praha one three three decimal three nine zero good by",
-        "readback": "one three three decimal three nine zero ryan air three xray yankee bye bye",
-        "mutated": "zero three three decimal three nine zero ryan air three xray yankee bye bye",
+        "controller": "negative frequency one three four decimal four four zero",
+        "readback": "o one three four decimal four four good day romeo sierra yankee nine seven one five",
+        "mutated": "o eight three four decimal four four good day romeo sierra yankee nine seven one five",
         "type": "frequency"
       },
       {
         "controller": "air india one two zero contact warsaw one three four decimal nine two five",
         "readback": "one three four decimal nine two five air india one two zero good day",
-        "mutated": "four three four decimal nine two five air india one two zero good day",
+        "mutated": "eight three four decimal nine two five air india one two zero good day",
         "type": "frequency"
       },
       {
         "controller": "scandinavian two six six two contact rhein one three three decimal two eight five",
         "readback": "rhein one three three decimal two eight five scandinavian two six six two bye",
-        "mutated": "rhein one six three decimal two eight five scandinavian two six six two bye",
+        "mutated": "rhein one three eight decimal two eight five scandinavian two six six two bye",
         "type": "frequency"
       },
       {
-        "controller": "roger turn left heading two five five",
-        "readback": "left heading two five five jobair zero five",
-        "mutated": "left heading five five five jobair zero five",
-        "type": "heading"
+        "controller": "scandinavian two six six two climb flight level three four zero",
+        "readback": "yeah climb level three four zero request level three six zero scandinavian two six six two",
+        "mutated": "yeah climb level three four zero request level three four zero scandinavian two six six two",
+        "type": "altitude"
+      },
+      {
+        "controller": "wizz air four uniform zulu contact praha one one eight decimal three seven five",
+        "readback": "one one eight decimal three seven five wizz air four uniform zulu bye bye",
+        "mutated": "seven one eight decimal three seven five wizz air four uniform zulu bye bye",
+        "type": "frequency"
       }
     ]
   }

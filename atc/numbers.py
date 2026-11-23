@@ -44,6 +44,13 @@ def read_number(words: list[str], i: int) -> Number | None:
     if not digits:
         return None
 
+    # "N thousand" / "N hundred" bind only to a short leading run: in
+    # "flight level two nine zero two thousand" the 290 and 2000 are separate numbers.
+    if j < n and words[j] in ("thousand", "hundred") and len(digits) > 2:
+        j -= 1 if len(digits) > 1 else 0
+        digits = digits[:-1]
+        return Number(int(digits), digits, i, j)
+
     if j < n and words[j] == "thousand":
         value = int(digits) * 1000
         j += 1

@@ -56,6 +56,9 @@ def _altitude(words: list[str], i: int, num: Number, verb: str) -> Instruction:
     before = words[max(0, num.start - 2) : num.start]
     after = words[num.end : num.end + 1]
     if "level" in before:
+        if len(num.digits) > 3 and not num.decimal:
+            # Flight levels have at most 3 digits; the rest is usually the callsign ("two nine zero four six echo").
+            num = Number(int(num.digits[:3]), num.digits[:3], num.start, num.start + 3)
         return Instruction("altitude", num.int_value * 100, f"{verb} FL".strip(), num.digits, num.start, num.end)
     if after == ["feet"] or num.int_value >= 1000:
         return Instruction("altitude", num.int_value, f"{verb} ft".strip(), num.digits, num.start, num.end)
@@ -86,6 +89,8 @@ def parse_instructions(words: list[str], skip_spans: list[tuple[int, int]] = ())
                 take(_altitude(words, i, num, ALT_VERBS[w]))
         elif w == "level" and prev in ("flight", "") or (w == "level" and prev not in ALT_VERBS):
             num = read_number(words, i + 1)
+            if num and len(num.digits) > 3 and not num.decimal:
+                num = Number(int(num.digits[:3]), num.digits[:3], num.start, num.start + 3)
             if num and prev != "passing" and words[max(0, i - 2)] != "passing":
                 take(Instruction("altitude", num.int_value * 100, "FL", num.digits, num.start, num.end))
         elif w == "turn" and nxt in ("left", "right"):
