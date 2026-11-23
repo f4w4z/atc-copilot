@@ -35,8 +35,10 @@ Reach it over Tailscale (`ssh ton-618`). Copy the code across with `scripts/sync
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\ton618_setup.ps1
-powershell -ExecutionPolicy Bypass -File scripts\ton618_week1.ps1
+powershell -ExecutionPolicy Bypass -File scripts\ton618_launch.ps1
 ```
+
+`ton618_launch.ps1` starts `ton618_week1.ps1` detached, so it survives the SSH session closing. Progress is in `logs\week1.log`; stop it with `Stop-Process -Id (Get-Content logs\week1.pid)`. Re-running skips baselines that already have results.
 
 The Week 1 script evaluates six baselines (stock Whisper small to large-v3, and both Whisper-ATC models), fine-tunes `whisper-small` for 4,000 steps on UWB-ATCC + ATCOSIM, evaluates the result, and prints the comparison table.
 

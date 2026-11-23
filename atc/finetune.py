@@ -12,7 +12,6 @@ to emit "flight level one hundred" rather than "FL100". Validation WER is report
 from __future__ import annotations
 
 import argparse
-import platform
 from dataclasses import dataclass
 
 import jiwer
@@ -50,22 +49,38 @@ class Collator:
         return batch
 
 
-def prepare(ds, processor, num_proc: int | None):
-    def fn(ex):
-        audio = ex["audio"]
-        ex["input_features"] = processor.feature_extractor(
-            audio["array"], sampling_rate=audio["sampling_rate"]
-        ).input_features[0]
-        # References are already spoken form; train on them as written and normalise only when scoring.
-        ex["labels"] = processor.tokenizer(" ".join(ex["text"].split())).input_ids
-        ex["audio_seconds"] = len(audio["array"]) / audio["sampling_rate"]
-        return ex
+class Featurize:
+    """Log-mel features computed on the fly. Caching them with .map() would cost
+    ~1 MB per utterance (80 x 3000 float32), about 18 GB for the default training set."""
 
-    ds = ds.map(fn, remove_columns=ds.column_names, num_proc=num_proc)
-    return ds.filter(
-        lambda s, l: s <= MAX_AUDIO_SECONDS and len(l) <= MAX_LABEL_TOKENS,
-        input_columns=["audio_seconds", "labels"],
-    ).remove_columns(["audio_seconds"])
+    def __init__(self, feature_extractor):
+        self.fe = feature_extractor
+
+    def __call__(self, batch):
+        arrays = [a["array"] for a in batch["audio"]]
+        feats = self.fe(arrays, sampling_rate=data.SAMPLING_RATE).input_features
+        return {"input_features": list(feats), "labels": batch["labels"]}
+
+
+class Tokenize:
+    def __init__(self, tokenizer):
+        self.tok = tokenizer
+
+    def __call__(self, batch):
+        # References are already spoken form; train on them as written and normalise only when scoring.
+        return {"labels": [self.tok(" ".join(t.split())).input_ids for t in batch["text"]]}
+
+
+def prepare(ds, processor, num_proc: int | None):
+    """Tokenise labels and drop over-long utterances; audio stays undecoded until batching."""
+    keep = {"audio", "duration"}
+    ds = ds.map(Tokenize(processor.tokenizer), batched=True, num_proc=num_proc,
+                remove_columns=[c for c in ds.column_names if c not in keep])
+    ds = ds.filter(
+        lambda d, l: d <= MAX_AUDIO_SECONDS and len(l) <= MAX_LABEL_TOKENS,
+        input_columns=["duration", "labels"],
+    )
+    return ds.remove_columns(["duration"])
 
 
 def main() -> None:
@@ -86,6 +101,10 @@ def main() -> None:
     p.add_argument("--no-grad-ckpt", action="store_true")
     p.add_argument("--num-proc", type=int, default=None, help="preprocessing workers")
     p.add_argument("--report-to", default="none", help="e.g. tensorboard, wandb")
+    p.add_argument("--workers", type=int, default=4, help="dataloader workers (audio decoding)")
+    p.add_argument("--save-only-model", action="store_true",
+                   help="checkpoints without optimizer state: ~1/3 the disk, but no exact resume")
+    p.add_argument("--resume", action="store_true", help="resume from the last checkpoint in --out")
     args = p.parse_args()
 
     processor = WhisperProcessor.from_pretrained(args.model)
@@ -94,7 +113,6 @@ def main() -> None:
         processor.tokenizer.set_prefix_tokens(language="english", task="transcribe")
 
     model = WhisperForConditionalGeneration.from_pretrained(args.model)
-    model.config.use_cache = False
     if multilingual:
         model.generation_config.language = "english"
         model.generation_config.task = "transcribe"
@@ -105,9 +123,10 @@ def main() -> None:
     train = concatenate_datasets([
         prepare(data.load(s, max_samples=args.max_train_samples, seed=1), processor, args.num_proc)
         for s in args.train
-    ]).shuffle(seed=0)
+    ]).shuffle(seed=0).with_transform(Featurize(processor.feature_extractor))
     evals = {
         data.parse_spec(s)[0]: prepare(data.load(s, max_samples=args.eval_samples), processor, args.num_proc)
+        .with_transform(Featurize(processor.feature_extractor))
         for s in args.eval
     }
     print(f"train {len(train)} utterances; eval " + ", ".join(f"{k}={len(v)}" for k, v in evals.items()))
@@ -146,8 +165,9 @@ def main() -> None:
         metric_for_best_model=f"eval_{next(iter(evals))}_wer",
         greater_is_better=False,
         report_to=args.report_to,
-        # Windows can't fork dataloader workers cheaply; keep them in-process there.
-        dataloader_num_workers=0 if platform.system() == "Windows" else 4,
+        dataloader_num_workers=args.workers,
+        dataloader_persistent_workers=args.workers > 0,
+        save_only_model=args.save_only_model,
         remove_unused_columns=False,
         label_names=["labels"],
     )
@@ -161,7 +181,7 @@ def main() -> None:
         compute_metrics=compute_metrics,
         tokenizer=processor.feature_extractor,
     )
-    trainer.train()
+    trainer.train(resume_from_checkpoint=True if args.resume else None)
     trainer.save_model(args.out)
     processor.save_pretrained(args.out)
     print(trainer.evaluate())
