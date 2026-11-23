@@ -174,29 +174,30 @@ Run all baselines and record the real numbers before fine-tuning. The before-and
 
 ## Build plan
 
+The order puts the full loop first: "it heard X, the aircraft did Y, and it flagged the mismatch" matters more than a lower WER. Each stage starts rough and gets better once the loop exists. Hardware is the critical path, so order the receivers on day one.
+
 **Week 0: Setup and reading**
-- Read [1] through [5]. Pick the airport and put up both receivers.
-- Start recording audio and ADS-B continuously, timestamped against one NTP-synced clock. You want weeks of data by the time the pipeline is ready.
+- Read [1] through [5]. Pick the airport and order both receivers.
+- Once they arrive, start recording audio and ADS-B continuously, timestamped against one NTP-synced clock.
 - Measure how many aircraft at your airport broadcast selected altitude, heading, and altimeter setting. That decides how central the selected-value check can be.
 
-**Week 1: Offline speech-to-text**
+**Week 1: Speech-to-text baselines (runs in the background)**
 - Download ATCOSIM, UWB-ATCC, and the ATCO2 1-hour test set. Fix the text normalisation.
-- Measure stock Whisper and Whisper-ATC.
-- Fine-tune and measure again on the public sets.
+- Measure stock Whisper and Whisper-ATC; fine-tune and measure again.
+- In parallel: the rule-based parser, callsign normaliser, and readback checker on corpus transcripts, with an error-injection set. This gives a first detection-rate number without any audio.
 
-**Week 2: Labelling and parser**
-- Label 300 transmissions from your airport. Measure all ASR models on them.
-- Define the clearance schema. Build the rule-based parser, speaker-role rule, and callsign normaliser. Score them.
+**Week 2: First end-to-end loop**
+- Pull live ADS-B for the airport (OpenSky REST to start, own receiver when it arrives) and link callsigns to tracks.
+- A rough conformance check: did the aircraft start towards the cleared altitude or heading in time?
+- Run audio -> transcript -> parse -> link -> check on real recordings, however rough. Record the first "heard X, did Y" example.
 
-**Week 3: Live pipeline**
-- Segment and transcribe the live airband stream.
-- Ingest ADS-B for the same airport and link callsigns to tracks.
+**Week 3: Own-airport data**
+- Label 300 transmissions from your airport. Measure all ASR models and the parser on them: this is the headline number.
 - Add callsign biasing and measure the gain.
 
-**Week 4: Checker**
-- Readback pairing and mismatch detection on parsed instructions.
-- Selected-value and track conformance checks, with altimeter, magnetic variation, and wind corrections.
-- Build the error-injection set and measure detection rate.
+**Week 4: Checker quality**
+- Selected-value checks, and altimeter, magnetic variation, and wind corrections for the conformance check.
+- Re-measure detection and false alarms with real ASR output instead of reference transcripts.
 
 **Week 5: Buffer**
 - Streaming, linking, and clock alignment always take longer than expected. Use this week for that, or for the model-based parser and audio speaker features if things are on time.
@@ -207,9 +208,9 @@ Run all baselines and record the real numbers before fine-tuning. The before-and
 
 **Week 7: Write-up**
 - Results tables against the HAAWAII, Whisper-ATC, and Kocour numbers.
-- Failure analysis.
+- Failure analysis: which phrases, accents, and noise conditions break it, and what changed to fix them.
 - Three or four real caught events with audio, selected-value, and track evidence.
-- A recorded demo.
+- A short demo video: real audio, the live transcript, and a flagged deviation over the flight track.
 
 ## Risks
 
