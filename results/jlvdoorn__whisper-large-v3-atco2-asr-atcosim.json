@@ -1,0 +1,48 @@
+{
+  "model": "jlvdoorn/whisper-large-v3-atco2-asr-atcosim",
+  "device": "cuda",
+  "dtype": "torch.float16",
+  "num_beams": 1,
+  "max_samples": null,
+  "sets": {
+    "atco2_1h:test": {
+      "wer": 0.26951208221460976,
+      "wer_raw": 0.2780343617217809,
+      "substitutions": 970,
+      "deletions": 1425,
+      "insertions": 516,
+      "ref_words": 10801,
+      "utterances": 871,
+      "seconds": 124.30650806427002,
+      "audio_seconds": 3554.3999987244606,
+      "rtf": 0.03497257149135689,
+      "possible_train_overlap": true
+    },
+    "uwb_atcc:test": {
+      "wer": 0.5523623964929372,
+      "wer_raw": 0.5620328849028401,
+      "substitutions": 5352,
+      "deletions": 5578,
+      "insertions": 3812,
+      "ref_words": 26689,
+      "utterances": 2822,
+      "seconds": 398.94901728630066,
+      "audio_seconds": 8761.460004776716,
+      "rtf": 0.045534536146806026,
+      "possible_train_overlap": false
+    },
+    "atcosim:test": {
+      "wer": 0.19518906444168294,
+      "wer_raw": 0.20338309336631039,
+      "substitutions": 1585,
+      "deletions": 1728,
+      "insertions": 1085,
+      "ref_words": 22532,
+      "utterances": 1901,
+      "seconds": 250.32898092269897,
+      "audio_seconds": 7366.450006082654,
+      "rtf": 0.03398230907913532,
+      "possible_train_overlap": true
+    }
+  }
+}

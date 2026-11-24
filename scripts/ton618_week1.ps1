@@ -7,7 +7,8 @@ param(
     [string]$FinetuneBase = "openai/whisper-small",
     [string]$RunName = "small-v1",
     [int]$BatchSize = 16,
-    [switch]$SkipBaselines
+    [switch]$SkipBaselines,
+    [switch]$Resume
 )
 # Native tools write progress to stderr; in Windows PowerShell 5.1 that becomes an error
 # record, so never use "Stop" here. Failures are detected from $LASTEXITCODE instead.
@@ -52,9 +53,10 @@ if (-not $SkipBaselines) {
     }
 }
 
-$code = Step "finetune $FinetuneBase -> runs\$RunName" "finetune_$RunName" @(
-    "-m", "atc.finetune", "--model", $FinetuneBase, "--out", "runs\$RunName",
+$ftArgs = @("-m", "atc.finetune", "--model", $FinetuneBase, "--out", "runs\$RunName",
     "--batch-size", $BatchSize, "--report-to", "tensorboard")
+if ($Resume) { $ftArgs += "--resume" }
+$code = Step "finetune $FinetuneBase -> runs\$RunName" "finetune_$RunName" $ftArgs
 if ($code -eq 0) {
     Step "eval runs\$RunName" "eval_$RunName" @(
         "-m", "atc.eval_wer", "--model", "runs\$RunName", "--tag", $RunName, "--batch-size", $BatchSize) | Out-Null

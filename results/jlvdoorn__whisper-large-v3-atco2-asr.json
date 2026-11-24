@@ -1,0 +1,48 @@
+{
+  "model": "jlvdoorn/whisper-large-v3-atco2-asr",
+  "device": "cuda",
+  "dtype": "torch.float16",
+  "num_beams": 1,
+  "max_samples": null,
+  "sets": {
+    "atco2_1h:test": {
+      "wer": 0.09952782149800944,
+      "wer_raw": 0.11592462590060965,
+      "substitutions": 708,
+      "deletions": 251,
+      "insertions": 116,
+      "ref_words": 10801,
+      "utterances": 871,
+      "seconds": 114.78622674942017,
+      "audio_seconds": 3554.3999987244606,
+      "rtf": 0.03229412187446899,
+      "possible_train_overlap": true
+    },
+    "uwb_atcc:test": {
+      "wer": 0.34606017460376937,
+      "wer_raw": 0.35276532137518685,
+      "substitutions": 4732,
+      "deletions": 1288,
+      "insertions": 3216,
+      "ref_words": 26689,
+      "utterances": 2822,
+      "seconds": 356.7555248737335,
+      "audio_seconds": 8761.460004776716,
+      "rtf": 0.04071873006088388,
+      "possible_train_overlap": false
+    },
+    "atcosim:test": {
+      "wer": 0.12484466536481449,
+      "wer_raw": 0.13028884374171892,
+      "substitutions": 1913,
+      "deletions": 464,
+      "insertions": 436,
+      "ref_words": 22532,
+      "utterances": 1901,
+      "seconds": 225.80981016159058,
+      "audio_seconds": 7366.450006082654,
+      "rtf": 0.030653816964091796,
+      "possible_train_overlap": false
+    }
+  }
+}

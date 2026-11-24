@@ -12,6 +12,8 @@ def main(results_dir: str = "results") -> None:
     sets: list[str] = []
     for path in sorted(Path(results_dir).glob("*.json")):
         s = json.loads(path.read_text(encoding="utf-8"))
+        if "sets" not in s:
+            continue  # not a WER summary (e.g. readback_eval.json)
         rows.append((path.stem, s))
         for k in s["sets"]:
             if k not in sets:

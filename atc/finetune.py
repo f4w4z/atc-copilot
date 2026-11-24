@@ -17,6 +17,7 @@ from dataclasses import dataclass
 import jiwer
 import torch
 from datasets import concatenate_datasets
+from torch.utils.data import DataLoader
 from transformers import (
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
@@ -83,6 +84,25 @@ def prepare(ds, processor, num_proc: int | None):
     return ds.remove_columns(["duration"])
 
 
+class ATCTrainer(Seq2SeqTrainer):
+    """Evaluation runs in-process. On Windows every dataloader worker is a spawned
+    process that reserves ~2.4 GB of commit memory, and the stock Trainer started a
+    fresh set per eval round without releasing the old ones, which exhausted the
+    commit limit after ~1,500 steps."""
+
+    def __init__(self, *args, eval_workers: int = 0, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.eval_workers = eval_workers
+
+    def get_eval_dataloader(self, eval_dataset=None):
+        ds = self.eval_dataset if eval_dataset is None else eval_dataset
+        if isinstance(ds, str):
+            ds = self.eval_dataset[ds]
+        return DataLoader(ds, batch_size=self.args.per_device_eval_batch_size,
+                          collate_fn=self.data_collator, num_workers=self.eval_workers,
+                          pin_memory=torch.cuda.is_available())
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="openai/whisper-small")
@@ -101,7 +121,8 @@ def main() -> None:
     p.add_argument("--no-grad-ckpt", action="store_true")
     p.add_argument("--num-proc", type=int, default=None, help="preprocessing workers")
     p.add_argument("--report-to", default="none", help="e.g. tensorboard, wandb")
-    p.add_argument("--workers", type=int, default=4, help="dataloader workers (audio decoding)")
+    p.add_argument("--workers", type=int, default=2, help="training dataloader workers (audio decoding)")
+    p.add_argument("--eval-workers", type=int, default=0, help="eval dataloader workers")
     p.add_argument("--save-only-model", action="store_true",
                    help="checkpoints without optimizer state: ~1/3 the disk, but no exact resume")
     p.add_argument("--resume", action="store_true", help="resume from the last checkpoint in --out")
@@ -166,13 +187,12 @@ def main() -> None:
         greater_is_better=False,
         report_to=args.report_to,
         dataloader_num_workers=args.workers,
-        dataloader_persistent_workers=args.workers > 0,
         save_only_model=args.save_only_model,
         remove_unused_columns=False,
         label_names=["labels"],
     )
 
-    trainer = Seq2SeqTrainer(
+    trainer = ATCTrainer(
         model=model,
         args=training_args,
         train_dataset=train,
@@ -180,6 +200,7 @@ def main() -> None:
         data_collator=Collator(processor, model.config.decoder_start_token_id),
         compute_metrics=compute_metrics,
         tokenizer=processor.feature_extractor,
+        eval_workers=args.eval_workers,
     )
     trainer.train(resume_from_checkpoint=True if args.resume else None)
     trainer.save_model(args.out)

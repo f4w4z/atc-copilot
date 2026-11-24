@@ -1,0 +1,48 @@
+{
+  "model": "openai/whisper-small",
+  "device": "cuda",
+  "dtype": "torch.float16",
+  "num_beams": 1,
+  "max_samples": null,
+  "sets": {
+    "atco2_1h:test": {
+      "wer": 0.5507823349689843,
+      "wer_raw": 0.7406244226861259,
+      "substitutions": 3919,
+      "deletions": 665,
+      "insertions": 1365,
+      "ref_words": 10801,
+      "utterances": 871,
+      "seconds": 34.321027994155884,
+      "audio_seconds": 3554.3999987244606,
+      "rtf": 0.0096559273031939,
+      "possible_train_overlap": false
+    },
+    "uwb_atcc:test": {
+      "wer": 0.8377983438869946,
+      "wer_raw": 0.9950298953662182,
+      "substitutions": 11338,
+      "deletions": 2872,
+      "insertions": 8150,
+      "ref_words": 26689,
+      "utterances": 2822,
+      "seconds": 118.51724934577942,
+      "audio_seconds": 8761.460004776716,
+      "rtf": 0.013527111837657679,
+      "possible_train_overlap": false
+    },
+    "atcosim:test": {
+      "wer": 0.29828688088052546,
+      "wer_raw": 0.6996290080381592,
+      "substitutions": 3985,
+      "deletions": 925,
+      "insertions": 1811,
+      "ref_words": 22532,
+      "utterances": 1901,
+      "seconds": 64.55569648742676,
+      "audio_seconds": 7366.450006082654,
+      "rtf": 0.008763474459763058,
+      "possible_train_overlap": false
+    }
+  }
+}
