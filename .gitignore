@@ -4,3 +4,4 @@ __pycache__/
 runs/
 results/*.jsonl
 .DS_Store
+data/

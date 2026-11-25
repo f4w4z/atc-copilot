@@ -13,6 +13,13 @@ Current stage: **Week 1, offline speech-to-text** (baselines and first fine-tune
 | `atc/eval_wer.py` | WER of any Whisper checkpoint on the test sets |
 | `atc/finetune.py` | Fine-tunes Whisper on the public corpora |
 | `atc/report.py` | Collects `results/*.json` into one table |
+| `atc/parse.py`, `atc/callsign.py`, `atc/numbers.py` | Rule-based clearance parser: transcript -> speaker, ICAO callsign, instructions |
+| `atc/readback.py`, `atc/eval_readback.py` | Readback checker on parsed instructions, evaluated on UWB-ATCC with injected errors |
+| `atc/adsb.py` | OpenSky and readsb sources, track store |
+| `atc/link.py` | Matches a heard callsign to a tracked aircraft, tolerating misheard digits |
+| `atc/conformance.py` | Did the aircraft follow the altitude or heading clearance (QNH and magnetic variation corrected)? |
+| `atc/loop.py` | The full loop: transmission -> parse -> link -> readback and conformance events |
+| `atc/record_adsb.py` | Records ADS-B around an airport to daily JSONL |
 | `scripts/ton618_*.ps1` | Setup and Week 1 run on the training box (Windows + NVIDIA) |
 
 ## Local (Mac)
